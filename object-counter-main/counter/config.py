@@ -4,6 +4,7 @@ from counter.adapters.count_repo import CountMongoDBRepo, CountInMemoryRepo
 from counter.adapters.object_detector import TFSObjectDetector, FakeObjectDetector
 from counter.domain.actions import CountDetectedObjects
 from counter.domain.actions import GetPredictions
+from counter.adapters.postgres_repo import CountPostgresRepo
 
 def dev_count_action() -> CountDetectedObjects:
     return CountDetectedObjects(FakeObjectDetector(), CountInMemoryRepo())
