@@ -11,14 +11,43 @@ def dev_count_action() -> CountDetectedObjects:
 
 
 def prod_count_action() -> CountDetectedObjects:
+
     tfs_host = os.environ.get('TFS_HOST', 'localhost')
     tfs_port = os.environ.get('TFS_PORT', 8501)
-    mongo_host = os.environ.get('MONGO_HOST', 'localhost')
-    mongo_port = os.environ.get('MONGO_PORT', 27017)
-    mongo_db = os.environ.get('MONGO_DB', 'prod_counter')
     model_name = os.environ.get('MODEL_NAME', 'ssd_mobilenet_v2')
-    return CountDetectedObjects(TFSObjectDetector(tfs_host, tfs_port, model_name),
-                                CountMongoDBRepo(host=mongo_host, port=mongo_port, database=mongo_db))
+
+    repo_type = os.environ.get("REPO_TYPE", "mongo")
+
+    if repo_type == "postgres":
+
+        repo = CountPostgresRepo(
+            host=os.environ.get("POSTGRES_HOST", "localhost"),
+            port=os.environ.get("POSTGRES_PORT", 5432),
+            database=os.environ.get("POSTGRES_DB", "counter"),
+            user=os.environ.get("POSTGRES_USER", "postgres"),
+            password=os.environ.get("POSTGRES_PASSWORD", "postgres")
+        )
+
+    else:
+
+        mongo_host = os.environ.get('MONGO_HOST', 'localhost')
+        mongo_port = os.environ.get('MONGO_PORT', 27017)
+        mongo_db = os.environ.get('MONGO_DB', 'prod_counter')
+
+        repo = CountMongoDBRepo(
+            host=mongo_host,
+            port=mongo_port,
+            database=mongo_db
+        )
+
+    return CountDetectedObjects(
+        TFSObjectDetector(
+            tfs_host,
+            tfs_port,
+            model_name
+        ),
+        repo
+    )
 
 
 def get_count_action() -> CountDetectedObjects:
