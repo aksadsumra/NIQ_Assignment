@@ -3,7 +3,7 @@ import os
 from counter.adapters.count_repo import CountMongoDBRepo, CountInMemoryRepo
 from counter.adapters.object_detector import TFSObjectDetector, FakeObjectDetector
 from counter.domain.actions import CountDetectedObjects
-
+from counter.domain.actions import GetPredictions
 
 def dev_count_action() -> CountDetectedObjects:
     return CountDetectedObjects(FakeObjectDetector(), CountInMemoryRepo())
@@ -24,3 +24,26 @@ def get_count_action() -> CountDetectedObjects:
     env = os.environ.get('ENV', 'dev')
     count_action_fn = f"{env}_count_action"
     return globals()[count_action_fn]()
+
+
+def get_prediction_action():
+
+    env = os.environ.get("ENV", "dev")
+
+    if env == "prod":
+
+        tfs_host = os.environ.get("TFS_HOST", "localhost")
+        tfs_port = os.environ.get("TFS_PORT", 8501)
+        model_name = os.environ.get("MODEL_NAME", "ssd_mobilenet_v2")
+
+        detector = TFSObjectDetector(
+            tfs_host,
+            tfs_port,
+            model_name
+        )
+
+    else:
+
+        detector = FakeObjectDetector()
+
+    return GetPredictions(detector)
