@@ -4,6 +4,8 @@ from flask import Flask, request, jsonify
 
 from counter import config
 from dataclasses import asdict
+from tmp.utils import validate_threshold
+
 
 def create_app():
     
@@ -14,7 +16,14 @@ def create_app():
     @app.route('/object-count', methods=['POST'])
     def object_detection():
         
-        threshold = float(request.form.get('threshold', 0.5))
+        # threshold = float(request.form.get('threshold', 0.5))
+        try:
+            threshold = validate_threshold(
+                    request.form.get("threshold")
+                    )
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+            
         uploaded_file = request.files['file']
         image = BytesIO()
         uploaded_file.save(image)
@@ -24,9 +33,15 @@ def create_app():
         @app.route("/predictions", methods=["POST"])
     def predictions():
 
-        threshold = float(
-            request.form.get("threshold", 0.5)
-        )
+        # threshold = float(
+            # request.form.get("threshold", 0.5)
+        # )
+        try:
+            threshold = validate_threshold(
+                request.form.get("threshold")
+                )
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
     
         uploaded_file = request.files["file"]
     
