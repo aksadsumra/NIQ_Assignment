@@ -8,13 +8,6 @@ from counter.entrypoints.webapp import create_app
 
 
 @pytest.fixture
-def client():
-    app = create_app()
-    app.config['TESTING'] = True
-    with app.test_client() as client:
-        yield client
-
-@pytest.fixture
 def image_path():
     ref_dir = Path(__file__).parent
     return ref_dir.parent.parent / "resources" / "images" / "boy.jpg"
