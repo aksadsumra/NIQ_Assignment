@@ -8,60 +8,82 @@ from tmp.utils import validate_threshold
 
 
 def create_app():
-    
+
     app = Flask(__name__)
-    
+
     count_action = config.get_count_action()
     prediction_action = config.get_prediction_action()
+
     @app.route('/object-count', methods=['POST'])
     def object_detection():
-        
-        # threshold = float(request.form.get('threshold', 0.5))
-        try:
-            threshold = validate_threshold(
-                    request.form.get("threshold")
-                    )
-        except ValueError as e:
-            return jsonify({"error": str(e)}), 400
-            
-        uploaded_file = request.files['file']
-        image = BytesIO()
-        uploaded_file.save(image)
-        count_response = count_action.execute(image, threshold)
-        return jsonify(count_response)
 
-        @app.route("/predictions", methods=["POST"])
-    def predictions():
-
-        # threshold = float(
-            # request.form.get("threshold", 0.5)
-        # )
         try:
             threshold = validate_threshold(
                 request.form.get("threshold")
-                )
+            )
         except ValueError as e:
             return jsonify({"error": str(e)}), 400
-    
+
+        if "file" not in request.files:
+            return jsonify(
+                {"error": "file is required"}
+            ), 400
+
         uploaded_file = request.files["file"]
-    
+
         image = BytesIO()
-    
+
         uploaded_file.save(image)
-    
+
         image.seek(0)
-    
+
+        count_response = count_action.execute(
+            image,
+            threshold
+        )
+
+        return jsonify(count_response)
+
+    @app.route("/predictions", methods=["POST"])
+    def predictions():
+
+        try:
+            threshold = validate_threshold(
+                request.form.get("threshold")
+            )
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+
+        if "file" not in request.files:
+            return jsonify(
+                {"error": "file is required"}
+            ), 400
+
+        uploaded_file = request.files["file"]
+
+        image = BytesIO()
+
+        uploaded_file.save(image)
+
+        image.seek(0)
+
         predictions = prediction_action.execute(
             image,
             threshold
         )
-    
+
         return jsonify(
             [asdict(p) for p in predictions]
         )
-        
+
     return app
 
+
 if __name__ == '__main__':
+
     app = create_app()
-    app.run('0.0.0.0', debug=True)
+
+    app.run(
+        '0.0.0.0',
+        debug=True
+    )
