@@ -1,3 +1,4 @@
+import io
 def test_object_count_invalid_threshold(client):
 
     image = io.BytesIO(b"fake image")
