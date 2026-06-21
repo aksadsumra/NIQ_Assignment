@@ -2,18 +2,22 @@
 
 ## Overview
 
-This project demonstrates the application of Hexagonal Architecture (Ports & Adapters) in a Machine Learning-based object detection system.
+This project demonstrates the application of Hexagonal Architecture (Ports & Adapters) in a Machine Learning-based Object Detection system.
 
 The application exposes a Flask API that accepts an image and a confidence threshold, performs object detection, and returns either:
 
 * Object counts grouped by class (`/object-count`)
 * Individual predictions above a threshold (`/predictions`)
 
-## Architecture
+The model used in this example has been taken from Kaggle.
+
+---
+
+# Architecture
 
 The application is composed of three layers:
 
-### Entrypoints
+## Entrypoints
 
 Responsible for:
 
@@ -22,74 +26,80 @@ Responsible for:
 * Validating input
 * Returning responses
 
-### Adapters
+## Adapters
 
 Responsible for communication with external services:
 
 * TensorFlow Serving
 * MongoDB
 * PostgreSQL
-* In-memory repositories
+* In-Memory repositories
 
 Adapters translate domain objects to external service representations and vice versa.
 
-### Domain
+## Domain
 
 Contains:
 
-* Business logic
-* Use cases
-* Domain models
-* Ports (interfaces)
+* Business Logic
+* Use Cases
+* Domain Models
+* Ports (Interfaces)
 
-The domain layer remains independent of infrastructure concerns.
+The Domain layer remains independent of infrastructure concerns.
 
-## Assignment Deliverables
+---
 
-The following tasks were completed:
+# Assignment Deliverables
 
-### Task 1 – Predictions Endpoint
+The following tasks were completed as part of the assignment.
+
+## Task 1 – Predictions Endpoint
 
 Added a new endpoint:
 
-```text
 POST /predictions
-```
 
-Returns a list of predictions above the specified threshold including:
+Returns predictions above the specified threshold including:
 
-* Class name
-* Confidence score
-* Bounding box
+* Class Name
+* Confidence Score
+* Bounding Box
 
-### Task 2 – PostgreSQL Adapter
+---
+
+## Task 2 – PostgreSQL Adapter
 
 Implemented a new relational database adapter:
 
-```text
 CountPostgresRepo
-```
 
 following the existing Hexagonal Architecture pattern.
 
-### Task 3 – Improvements Proposal
+The solution allows switching repository implementations without changing business logic.
+
+---
+
+## Task 3 – Improvements Proposal
 
 Added:
 
-```text
 IMPROVEMENTS.md
-```
 
-containing recommendations for:
+which contains recommendations for:
 
-* Validation
+* Input Validation
 * Logging
-* Error handling
-* Testing
-* Configuration management
-* Database migrations
+* Error Handling
+* Testing Improvements
+* Environment Configuration Validation
+* Dependency Injection Improvements
+* Database Migrations
+* Configuration Management
 
-### Task 4 – Implemented Improvement
+---
+
+## Task 4 – Implemented Improvement
 
 Implemented request validation:
 
@@ -98,32 +108,44 @@ Implemented request validation:
 * File upload is required
 * Invalid requests return HTTP 400
 
-### Task 5 – Multi-Model Design
+---
+
+## Task 5 – Multi-Model Design
 
 Added:
 
-```text
 MULTI_MODEL_DESIGN.md
-```
 
 describing support for multiple internally trained models using:
 
 * Model Registry
 * Detector Factory
-* Dynamic model selection
+* Dynamic Model Selection
+* Framework Agnostic Adapters
 
-### Task 6 – Testing Enhancements
+---
 
-Added tests covering:
+## Task 6 – Testing Enhancements
 
-* Predictions endpoint
-* Invalid threshold values
-* Threshold range validation
-* Missing file handling
+Added:
 
-## Model Setup
+* Endpoint Tests
+* Validation Tests
+* Integration-style API Tests
 
-### Unix
+Scenarios covered:
+
+* Predictions Endpoint
+* Invalid Threshold
+* Threshold Out of Range
+* Missing File Upload
+* Object Count Endpoint Validation
+
+---
+
+# Model Setup
+
+## Unix
 
 ```bash
 mkdir -p tmp/model/ssd_mobilenet_v2/1
@@ -154,9 +176,9 @@ tmp/
             └── saved_model.pb
 ```
 
-## TensorFlow Serving
+# TensorFlow Serving
 
-### Unix
+## Unix
 
 ```bash
 num_physical_cores=$(lscpu --all --parse=SOCKET,CORE | grep -v '^#' | uniq | wc -l)
@@ -171,7 +193,7 @@ docker run --rm -d \
 tensorflow/serving
 ```
 
-### Windows PowerShell
+## Windows PowerShell
 
 ```powershell
 $num_physical_cores=(Get-WmiObject Win32_Processor | Select-Object NumberOfCores).NumberOfCores
@@ -186,20 +208,20 @@ docker run --rm -d `
 tensorflow/serving
 ```
 
-## MongoDB Setup
+# MongoDB Setup
 
 ```bash
 docker run --rm --name test-mongo -p 27017:27017 -d mongo:latest
 ```
 
-## Python Environment Setup
+# Python Environment Setup
 
-### Requirements
+## Requirements
 
 * Python 3.10+
 * Docker
 
-### Unix
+## Unix
 
 ```bash
 python3 -m venv .venv
@@ -211,7 +233,7 @@ pip install -r requirements.txt
 export PYTHONPATH=.
 ```
 
-### Windows PowerShell
+## Windows PowerShell
 
 ```powershell
 python -m venv .venv
@@ -223,23 +245,58 @@ pip install -r requirements.txt
 $Env:PYTHONPATH="."
 ```
 
-## Running the Application
+# Task Automation (Makefile)
 
-### Using Fake Services (Development)
+A Makefile is included to simplify common development tasks.
+
+## Install Dependencies
+
+```bash
+make install
+```
+
+## Run Application
+
+```bash
+make run
+```
+
+## Run Tests
+
+```bash
+make test
+```
+
+Example Makefile:
+
+```makefile
+install:
+	pip install -r requirements.txt
+
+run:
+	python -m counter.entrypoints.webapp
+
+test:
+	pytest
+```
+
+# Running the Application
+
+## Using Fake Services (Development)
 
 ```bash
 python -m counter.entrypoints.webapp
 ```
 
-### Using Real Services
+## Using Real Services
 
-#### Unix
+### Unix
 
 ```bash
 ENV=prod python -m counter.entrypoints.webapp
 ```
 
-#### Windows PowerShell
+### Windows PowerShell
 
 ```powershell
 $env:ENV="prod"
@@ -247,15 +304,15 @@ $env:ENV="prod"
 python -m counter.entrypoints.webapp
 ```
 
-Application runs on:
+Application runs at:
 
 ```text
 http://127.0.0.1:5000
 ```
 
-## API Usage
+# API Usage
 
-### Object Count Endpoint
+## Object Count Endpoint
 
 ```http
 POST /object-count
@@ -265,11 +322,11 @@ Example:
 
 ```bash
 curl -F "threshold=0.9" \
-     -F "file=@resources/images/boy.jpg" \
-     http://localhost:5000/object-count
+-F "file=@resources/images/boy.jpg" \
+http://localhost:5000/object-count
 ```
 
-### Predictions Endpoint
+## Predictions Endpoint
 
 ```http
 POST /predictions
@@ -279,11 +336,11 @@ Example:
 
 ```bash
 curl -F "threshold=0.5" \
-     -F "file=@resources/images/boy.jpg" \
-     http://localhost:5000/predictions
+-F "file=@resources/images/boy.jpg" \
+http://localhost:5000/predictions
 ```
 
-Response Example:
+Example Response:
 
 ```json
 [
@@ -300,25 +357,27 @@ Response Example:
 ]
 ```
 
-## Validation Rules
+# Validation Rules
 
 The API validates:
 
-### Threshold
+## Threshold
 
-* Must be numeric
-* Must be between 0 and 1
+Must be:
+
+* Numeric
+* Between 0 and 1
 
 Examples:
 
 ```text
-0.5   ✓
-0.9   ✓
-abc   ✗
-1.5   ✗
+0.5  ✓
+0.9  ✓
+abc  ✗
+1.5  ✗
 ```
 
-### File Upload
+## File Upload
 
 A file must be provided in the request.
 
@@ -328,7 +387,7 @@ Invalid requests return:
 400 Bad Request
 ```
 
-## Running Tests
+# Running Tests
 
 Run all tests:
 
@@ -342,22 +401,29 @@ or
 py -m pytest
 ```
 
-Expected result:
+Expected output:
 
 ```text
 10 passed
 ```
 
-## Documentation
+# Documentation
 
 Additional documentation included:
 
 ```text
 IMPROVEMENTS.md
+```
+
+Proposed improvements and future enhancements.
+
+```text
 MULTI_MODEL_DESIGN.md
 ```
 
-## Notes
+Design proposal for supporting multiple internal models and frameworks.
+
+# Notes
 
 If you experience connectivity issues on Windows, replace:
 
