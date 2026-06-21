@@ -133,96 +133,7 @@ Examples:
 
 ---
 
-# 5. API Documentation
-
-## Current Situation
-
-API contracts are not formally documented.
-
-Consumers must inspect source code to understand request and response formats.
-
-## Proposed Improvement
-
-Generate OpenAPI/Swagger documentation.
-
-Document:
-
-* Endpoints
-* Request parameters
-* Request examples
-* Response examples
-* Error responses
-
-## Benefits
-
-* Easier API adoption
-* Improved developer experience
-* Better maintainability
-* Faster onboarding for new developers
-
----
-
-# 6. Environment Configuration Validation
-
-## Current Situation
-
-The application reads configuration values directly from environment variables.
-
-Missing or invalid values may cause failures during runtime.
-
-## Proposed Improvement
-
-Validate required environment variables during application startup.
-
-Examples:
-
-* TFS_HOST
-* TFS_PORT
-* MODEL_NAME
-* Database configuration
-
-Fail fast when configuration is invalid.
-
-## Benefits
-
-* Detects configuration issues early
-* Prevents unexpected runtime failures
-* Simplifies deployment troubleshooting
-
----
-
-# 7. Dependency Injection Improvements
-
-## Current Situation
-
-The application resolves actions dynamically using:
-
-```python
-globals()[count_action_fn]()
-```
-
-While functional, this approach can become difficult to maintain as the number of services grows.
-
-## Proposed Improvement
-
-Introduce explicit dependency injection or factory-based construction.
-
-Example:
-
-```python
-ActionFactory.create_count_action()
-```
-
-## Benefits
-
-* Improved readability
-* Easier testing
-* Better maintainability
-* Reduced coupling
-
----
-
-# 8. Containerized Local Development
+# 5. Containerized Local Development
 
 ## Current Situation
 
@@ -245,7 +156,7 @@ Provide a Docker Compose configuration that starts all required services togethe
 
 ---
 
-# 9. Enhanced Test Coverage
+# 6. Enhanced Test Coverage
 
 ## Current Situation
 
